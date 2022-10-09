@@ -75,7 +75,7 @@ function findSlotTime(
   ).toFixed();
 
   let timeAllSlotInDay = [];
-  for (let i = 0; i <= totalOpenStadium; i++) {
+  for (let i = 0; i < totalOpenStadium; i++) {
     const start = addHours(i, new Date(openStadium));
     const end = addHours(i + 1, new Date(openStadium));
 
@@ -131,11 +131,21 @@ exports.getSlots = async (req, res, next) => {
     // console.log('opened', opened);
     // console.log('closed', closed);
 
-    const openTimeStadium = Date.parse(dayBooking);
+    const stadiumData = await stadiumService.getStadiumById(stadiumDetailId);
 
-    let closed = addHours(24, new Date(openTimeStadium)).toISOString();
-    console.log('closed', closed);
-    const closedTimeStadium = Date.parse(closed);
+    if (!stadiumData) {
+      throw new AppError('stadiumId not found stadium data', 404);
+    }
+
+    // const openTimeStadium = Date.parse(dayBooking);
+
+    const dateBooking = new Date(dayBooking)
+      .toISOString()
+      .substr(0, 19)
+      .split('T')[0];
+
+    const openTimeStadium = Date.parse(`${dateBooking}T08:00:00.000Z`);
+    const closedTimeStadium = Date.parse(`${dateBooking}T23:59:59.000Z`);
 
     // const openTimeStadium = Date.parse('2022-10-22T08:00:00.000Z');
     // const closedTimeStadium = Date.parse('2022-10-22T23:59:59.000Z');
@@ -158,14 +168,6 @@ exports.getSlots = async (req, res, next) => {
         }
       ]
     });
-
-    const stadiumData = await stadiumService.getStadiumById(stadiumDetailId);
-
-    if (!stadiumData) {
-      throw new AppError('stadiumId not found stadium data', 404);
-    }
-
-    console.log('stadiumData', stadiumData);
 
     const timeAllSlotInDay = findSlotTime(
       openTimeStadium,

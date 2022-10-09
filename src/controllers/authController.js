@@ -13,11 +13,21 @@ const genToken = (payload) =>
 
 exports.register = async (req, res, next) => {
   try {
-    const { firstName, lastName, emailOrMobile, password, confirmPassword } =
-      req.body;
+    const {
+      firstName,
+      lastName,
+      email,
+      phoneNumber,
+      password,
+      confirmPassword
+    } = req.body;
 
-    if (!emailOrMobile) {
-      throw new AppError('email address or mobile is required', 400);
+    if (!email) {
+      throw new AppError('email address is required', 400);
+    }
+
+    if (!phoneNumber) {
+      throw new AppError('mobile is required', 400);
     }
 
     if (!password) {
@@ -28,19 +38,19 @@ exports.register = async (req, res, next) => {
       throw new AppError('password and confirm password did not match', 400);
     }
 
-    const isEmail = validator.isEmail(emailOrMobile + '');
-    const isMobile = validator.isMobilePhone(emailOrMobile + '');
+    // const isEmail = validator.isEmail(emailOrMobile + '');
+    // const isMobile = validator.isMobilePhone(emailOrMobile + '');
 
-    if (!isEmail && !isMobile) {
-      throw new AppError('email address or mobile is invalid format', 400);
-    }
+    // if (!isEmail && !isMobile) {
+    //   throw new AppError('email address or mobile is invalid format', 400);
+    // }
 
     const hashedPassword = await bcrypt.hash(password, 12);
     const user = await User.create({
       firstName,
       lastName,
-      email: isEmail ? emailOrMobile : null,
-      phoneNumber: isMobile ? emailOrMobile : null,
+      email,
+      phoneNumber,
       password: hashedPassword
     });
 
@@ -81,6 +91,6 @@ exports.login = async (req, res, next) => {
   }
 };
 
-// exports.getMe = (req, res) => {
-//   res.status(200).json({ user: req.user });
-// };
+exports.getProfile = (req, res) => {
+  res.status(200).json({ user: req.user });
+};
