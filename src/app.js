@@ -7,10 +7,10 @@ const express = require('express');
 const cors = require('cors');
 const morgan = require('morgan');
 
-// const authRoute = require('./routes/authRoute');
-// const friendRoute = require('./routes/friendRoute');
-// const postRoute = require('./routes/postRoute');
-// const userRoute = require('./routes/userRoute');
+const authRoute = require('./routes/authRoute');
+const stadiumRoute = require('./routes/stadiumRoute');
+const bookingRoute = require('./routes/bookingRoute');
+
 const notFound = require('./middlewares/notFound');
 const error = require('./middlewares/error');
 // const authenticate = require('./middlewares/authenticate');
@@ -25,10 +25,9 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
-// app.use('/auth', authRoute);
-// app.use('/friends', authenticate, friendRoute);
-// app.use('/posts', authenticate, postRoute);
-// app.use('/users', authenticate, userRoute);
+app.use('/auth', authRoute);
+app.use('/stadium', stadiumRoute);
+app.use('/booking', bookingRoute);
 
 app.use(notFound);
 app.use(error);

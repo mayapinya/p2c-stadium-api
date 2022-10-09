@@ -26,14 +26,14 @@ module.exports = (sequelize, DataTypes) => {
         }
       },
       openTime: {
-        type: DataTypes.DATE,
+        type: DataTypes.STRING,
         allowNull: false,
         validate: {
           notEmpty: true
         }
       },
       closeTime: {
-        type: DataTypes.DATE,
+        type: DataTypes.STRING,
         allowNull: false,
         validate: {
           notEmpty: true
@@ -43,23 +43,18 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.ENUM(STADIUM_OPEN, STADIUM_CLOSE),
         allowNull: false,
         defaultValue: STADIUM_OPEN
+      },
+      image: {
+        type: DataTypes.STRING
       }
     },
     { underscored: true }
   );
 
   StadiumDetail.associate = (db) => {
-    StadiumDetail.belongsTo(db.Booking, {
+    StadiumDetail.hasMany(db.Booking, {
       foreignKey: {
-        name: 'bookingId',
-        allowNull: false
-      },
-      onDelete: 'RESTRICT',
-      onUpdate: 'RESTRICT'
-    });
-    StadiumDetail.hasMany(db.StadiumSlot, {
-      foreignKey: {
-        name: 'stadiumId',
+        name: 'stadiumDetailId',
         allowNull: false
       },
       onDelete: 'RESTRICT',

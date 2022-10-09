@@ -29,14 +29,6 @@ module.exports = (sequelize, DataTypes) => {
       onDelete: 'RESTRICT',
       onUpdate: 'RESTRICT'
     });
-    StadiumSlot.belongsTo(db.StadiumDetail, {
-      foreignKey: {
-        name: 'stadiumId',
-        allowNull: false
-      },
-      onDelete: 'RESTRICT',
-      onUpdate: 'RESTRICT'
-    });
   };
 
   return StadiumSlot;

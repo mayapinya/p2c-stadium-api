@@ -19,6 +19,13 @@ module.exports = (sequelize, DataTypes) => {
         validate: {
           notEmpty: true
         }
+      },
+      timeTotal: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        validate: {
+          notEmpty: true
+        }
       }
     },
     { underscored: true }
@@ -35,15 +42,15 @@ module.exports = (sequelize, DataTypes) => {
     });
     Booking.hasMany(db.StadiumSlot, {
       foreignKey: {
-        name: 'stadiumSlotId',
+        name: 'BookingId',
         allowNull: false
       },
       onDelete: 'RESTRICT',
       onUpdate: 'RESTRICT'
     });
-    Booking.hasMany(db.StadiumDetail, {
+    Booking.belongsTo(db.StadiumDetail, {
       foreignKey: {
-        name: 'stadiumId',
+        name: 'stadiumDetailId',
         allowNull: false
       },
       onDelete: 'RESTRICT',
@@ -52,7 +59,7 @@ module.exports = (sequelize, DataTypes) => {
     Booking.belongsTo(db.Admin, {
       foreignKey: {
         name: 'adminId',
-        allowNull: false
+        allowNull: true
       },
       onDelete: 'RESTRICT',
       onUpdate: 'RESTRICT'
