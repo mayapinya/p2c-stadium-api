@@ -1,11 +1,16 @@
 const fs = require('fs');
 const AppError = require('../utils/appError');
 const cloudinary = require('../utils/cloudinary');
-const { Booking, StadiumSlot, sequelize } = require('../models');
+const {
+  Booking,
+  StadiumSlot,
+  StadiumDetail,
+  User,
+  sequelize
+} = require('../models');
 const stadiumService = require('../services/stadiumService');
 const { BOOKING_CANCEL } = require('../config/constants');
 const { Op } = require('sequelize');
-const StadiumDetail = require('../models/StadiumDetail');
 
 exports.create = async (req, res, next) => {
   try {
@@ -190,8 +195,15 @@ exports.list = async (req, res, next) => {
   try {
     const bookingAll = await Booking.findAll({
       where: { userId: req.user.id },
-      order: [['updatedAt', 'ASC']]
+      order: [['createdAt', 'ASC']],
+      include: [
+        {
+          model: StadiumDetail,
+          attributes: ['stadiumName']
+        }
+      ]
     });
+
     res.status(200).json({ data: bookingAll });
   } catch (err) {
     next(err);
@@ -207,7 +219,20 @@ exports.detail = async (req, res, next) => {
     const { id: bookingId } = req.params;
     const bookingAll = await Booking.findOne({
       where: { userId: req.user.id, id: bookingId },
-      order: [['updatedAt', 'ASC']]
+      order: [['createdAt', 'ASC']],
+      include: [
+        {
+          model: User,
+          attributes: ['firstName', 'lastName', 'phoneNumber', 'email']
+        },
+        {
+          model: StadiumDetail,
+          attributes: ['stadiumName', 'price']
+        },
+        {
+          model: StadiumSlot
+        }
+      ]
     });
 
     if (!bookingAll) {
