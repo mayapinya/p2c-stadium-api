@@ -4,7 +4,7 @@ const jwt = require('jsonwebtoken');
 const { Op } = require('sequelize');
 
 const AppError = require('../utils/appError');
-const { User } = require('../models');
+const { User, Admin } = require('../models');
 
 const genToken = (payload) =>
   jwt.sign(payload, process.env.JWT_SECRET_KEY || 'private_key', {
@@ -56,6 +56,36 @@ exports.register = async (req, res, next) => {
 
     const token = genToken({ id: user.id });
     res.status(201).json({ token });
+  } catch (err) {
+    next(err);
+  }
+};
+
+exports.loginAdmin = async (req, res, next) => {
+  try {
+    const { emailOrMobile, password } = req.body;
+
+    if (typeof emailOrMobile !== 'string' || typeof password !== 'string') {
+      throw new AppError('email address or mobile or password is invalid', 400);
+    }
+
+    const user = await Admin.findOne({
+      where: {
+        [Op.or]: [{ email: emailOrMobile }, { phoneNumber: emailOrMobile }]
+      }
+    });
+
+    if (!user) {
+      throw new AppError('email address or mobile or password is invalid', 400);
+    }
+
+    const isCorrect = await bcrypt.compare(password, user.password);
+    if (!isCorrect) {
+      throw new AppError('email address or mobile or password is invalid', 400);
+    }
+
+    const token = genToken({ id: user.id });
+    res.status(200).json({ token });
   } catch (err) {
     next(err);
   }

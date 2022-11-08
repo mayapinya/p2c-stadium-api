@@ -9,7 +9,7 @@ const {
   sequelize
 } = require('../models');
 const stadiumService = require('../services/stadiumService');
-const { BOOKING_CANCEL } = require('../config/constants');
+const { BOOKING_CANCEL, BOOKING_SUCCESS } = require('../config/constants');
 const { Op } = require('sequelize');
 
 exports.create = async (req, res, next) => {
@@ -185,9 +185,6 @@ exports.getSlots = async (req, res, next) => {
   } catch (err) {
     next(err);
   } finally {
-    if (req.file) {
-      fs.unlinkSync(req.file.path);
-    }
   }
 };
 
@@ -208,9 +205,6 @@ exports.list = async (req, res, next) => {
   } catch (err) {
     next(err);
   } finally {
-    if (req.file) {
-      fs.unlinkSync(req.file.path);
-    }
   }
 };
 
@@ -243,16 +237,12 @@ exports.detail = async (req, res, next) => {
   } catch (err) {
     next(err);
   } finally {
-    if (req.file) {
-      fs.unlinkSync(req.file.path);
-    }
   }
 };
 
 exports.cancel = async (req, res, next) => {
   try {
     const { id: bookingId } = req.body;
-    console.log('bookingId', bookingId);
     await Booking.update(
       {
         bookingStatus: BOOKING_CANCEL
@@ -269,8 +259,48 @@ exports.cancel = async (req, res, next) => {
   } catch (err) {
     next(err);
   } finally {
-    if (req.file) {
-      fs.unlinkSync(req.file.path);
-    }
+  }
+};
+
+exports.getAllBooking = async (req, res, next) => {
+  try {
+    const bookingAll = await Booking.findAll({
+      order: [['createdAt', 'ASC']],
+      include: [
+        {
+          model: StadiumDetail,
+          attributes: ['stadiumName']
+        }
+      ]
+    });
+
+    res.status(200).json({ data: bookingAll });
+  } catch (err) {
+    next(err);
+  } finally {
+  }
+};
+
+exports.adminUpdateStatus = async (req, res, next) => {
+  try {
+    const { id: bookingId, bookingStatus } = req.body;
+    console.log(req.user.id);
+    await Booking.update(
+      {
+        bookingStatus,
+        adminId: req.user.id
+      },
+      { where: { id: bookingId } }
+    );
+
+    const bookingUpdated = await Booking.findOne({
+      where: { id: bookingId },
+      order: [['updatedAt', 'ASC']]
+    });
+
+    res.status(200).json({ data: bookingUpdated });
+  } catch (err) {
+    next(err);
+  } finally {
   }
 };

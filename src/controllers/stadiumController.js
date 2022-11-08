@@ -36,6 +36,19 @@ exports.create = async (req, res, next) => {
 
 exports.list = async (req, res, next) => {
   try {
+    const stadiumAll = await stadiumService.getStadiumOpen();
+    res.status(200).json({ data: stadiumAll });
+  } catch (err) {
+    next(err);
+  } finally {
+    if (req.file) {
+      fs.unlinkSync(req.file.path);
+    }
+  }
+};
+
+exports.all = async (req, res, next) => {
+  try {
     const stadiumAll = await stadiumService.getStadiumAll();
     res.status(200).json({ data: stadiumAll });
   } catch (err) {
@@ -73,6 +86,104 @@ exports.updateDetail = async (req, res, next) => {
     await StadiumDetail.update(updateValue, { where: { id: stadiumId } });
     const stadiumData = await stadiumService.getStadiumById(stadiumId);
     res.status(200).json({ data: stadiumData });
+  } catch (err) {
+    next(err);
+  } finally {
+    if (req.file) {
+      fs.unlinkSync(req.file.path);
+    }
+  }
+};
+
+exports.createByAdmin = async (req, res, next) => {
+  try {
+    const {
+      stadiumName,
+      price,
+      facility,
+      openTime,
+      closeTime,
+      stadiumStatus,
+      image
+    } = req.body;
+
+    const data = {
+      stadiumName,
+      price,
+      facility,
+      openTime,
+      closeTime,
+      stadiumStatus,
+      image
+    };
+
+    if (req.file) {
+      data.image = await cloudinary.upload(req.file.path);
+    }
+
+    const newStadium = await StadiumDetail.create(data);
+    res.status(201).json({ newStadium });
+  } catch (err) {
+    next(err);
+  } finally {
+    if (req.file) {
+      fs.unlinkSync(req.file.path);
+    }
+  }
+};
+
+exports.updateByAdmin = async (req, res, next) => {
+  try {
+    const {
+      id,
+      stadiumName,
+      price,
+      facility,
+      openTime,
+      stadiumStatus,
+      closeTime,
+      image
+    } = req.body;
+
+    const data = {
+      stadiumName,
+      price,
+      facility,
+      openTime,
+      closeTime,
+      stadiumStatus,
+      image
+    };
+
+    if (req.file) {
+      data.image = await cloudinary.upload(req.file.path);
+    }
+
+    await StadiumDetail.update(data, { where: { id } });
+
+    const stadiumData = await stadiumService.getStadiumById(id);
+    res.status(201).json({ data: stadiumData });
+  } catch (err) {
+    next(err);
+  } finally {
+    if (req.file) {
+      fs.unlinkSync(req.file.path);
+    }
+  }
+};
+
+exports.updateStatusByAdmin = async (req, res, next) => {
+  try {
+    const { id, stadiumStatus } = req.body;
+
+    console.log('req.body', req.body);
+
+    const data = { stadiumStatus };
+
+    await StadiumDetail.update(data, { where: { id } });
+
+    const stadiumData = await stadiumService.getStadiumById(id);
+    res.status(201).json({ data: stadiumData });
   } catch (err) {
     next(err);
   } finally {
