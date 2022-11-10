@@ -3,23 +3,19 @@ const { STADIUM_OPEN } = require('../config/constants');
 
 exports.getStadiumOpen = async () => {
   const stadium = await StadiumDetail.findAll({
-    where: { stadiumStatus: STADIUM_OPEN },
-    order: [['updatedAt', 'ASC']]
+    where: { stadiumStatus: STADIUM_OPEN }
   });
   return stadium;
 };
 
 exports.getStadiumAll = async () => {
-  const stadium = await StadiumDetail.findAll({
-    order: [['updatedAt', 'ASC']]
-  });
+  const stadium = await StadiumDetail.findAll();
   return stadium;
 };
 
 exports.getStadiumById = async (stadiumId) => {
   const stadium = await StadiumDetail.findOne({
-    where: { id: stadiumId },
-    order: [['updatedAt', 'ASC']]
+    where: { id: stadiumId }
   });
   return stadium;
 };
